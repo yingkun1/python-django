@@ -1,0 +1,23 @@
+from django.db import models
+
+class Course(models.Model):
+    """
+    普通课程
+    """
+    title = models.CharField(max_length=12)
+
+class DegreeCourse(models.Model):
+    """
+    学位课程
+    """
+    title = models.CharField(max_length=32)
+
+class PricePolicy(models.Model):
+    """
+    价格策略
+    """
+    price = models.IntegerField()
+    period = models.IntegerField()
+
+    table_name = models.CharField(verbose_name='关联表的名称')
+    object_id = models.CharField(verbose_name='关联的表中的数据行的ID')

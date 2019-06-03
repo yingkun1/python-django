@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{#    <p>{{ persons.0 }}</p>#}
+{#    <p>{{ persons.0 }}</p>#}
+{#    <p>{{ persons.0 }}</p>#}
+{#    {% with  zs=persons.0  %}#}
+{#        <p>{{ zs }}</p>#}
+{#        <p>{{ zs }}</p>#}
+{#        <p>{{ zs }}</p>#}
+{#    {% endwith %}#}
+    {% with persons.1 as ls %}
+        <p>{{ ls }}</p>
+        <p>{{ ls }}</p>
+        <p>{{ ls }}</p>
+    {% endwith %}
+    <p>{{ ls }}</p>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>首页</title>
+    <script src="{% static 'ad.js' %}"></script>
+</head>
+<body>
+    <ul>
+        {% for comment in comments %}
+            <li>{{ comment.content|safe }}</li>
+        {% endfor %}
+    </ul>
+
+    <form action="{% url 'comment' %}" method="post">
+        {% csrf_token %}
+        <textarea name="content" id="" cols="30" rows="10"></textarea>
+        <p>
+            <input type="submit" value="提交">
+        </p>
+    </form>
+</body>
+</html>

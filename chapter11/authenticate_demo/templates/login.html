@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+</head>
+<body>
+    <form action="" method="post">
+{#        {% csrf_token %}#}
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        <table>
+            <tbody>
+                <tr>
+                    <td>用户号码:</td>
+                    <td><input type="text" name="telephone"></td>
+                </tr>
+                <tr>
+                    <td>密码:</td>
+                    <td><input type="password" name="password"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="">
+                            <input type="checkbox" name="remeber" value="1">记住我
+                        </label>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><input type="submit" value="登录"></td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</body>
+</html>

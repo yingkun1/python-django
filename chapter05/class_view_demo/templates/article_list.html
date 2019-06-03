@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+</head>
+<body>
+    <ul>
+        {% for article in articles %}
+            <li>{{ article.title }}</li>
+        {% endfor %}
+        <ul class="pagination">
+{#            <li class="disabled"><a href="#">上一页</a></li>#}
+{#            <li class="active"><a href="#">1</a></li>#}
+{#            <li><a href="#">2</a></li>#}
+{#            <li><a href="#">3</a></li>#}
+{#            <li><a href="#">4</a></li>#}
+{#            <li><a href="#">5</a></li>#}
+{#            <li><a href="#">下一页</a></li>#}
+            {#上一页#}
+            {% if page_obj.has_previous %}
+                <li><a href="{% url 'front:article_list' %}?p={{ page_obj.previous_page_number }}">上一页</a></li>
+            {% else %}
+                <li class="disabled"><a href="javascript:void(0);">上一页</a></li>
+            {% endif %}
+            {#中间的页码#}
+            {% for page in paginator.page_range  %}
+                {% if page == page_obj.number %}
+                    <li class="active"><a href="javascript:void(0);">{{ page }}</a></li>
+                {% else %}
+                    <li><a href="{% url 'front:article_list' %}?p={{ page }}">{{ page }}</a></li>
+                {% endif %}
+            {% endfor %}
+            {#下一页#}
+            {% if page_obj.has_next %}
+                <li><a href="{% url 'front:article_list' %}?p={{ page_obj.next_page_number }}">下一页</a></li>
+            {% else %}
+                <li class="disabled"><a href="javascript:void(0);">下一页</a></li>
+            {% endif %}
+
+        </ul>
+    </ul>
+</body>
+</html>

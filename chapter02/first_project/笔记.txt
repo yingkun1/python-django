@@ -1,0 +1,889 @@
+#第一个项目笔记：
+##创建项目：
+1、通过命令行的方式：首先要进入到安装了django的虚拟环境中，然后执行命令
+"""
+django-admin startproject [项目的名称]
+"""
+2、通过pycharm的方式：文件->新建项目->选择django.然后指定项目所在的路径，
+以及python解释器，再点击Create就可以创建项目了
+这样就可以在当前目录创建一个项目
+
+##运行项目：
+1、在终端，进入到项目文件夹中，然后执行以下命令即可运行：
+"""
+python manage.py runserver
+"""
+2、在pycharm中，直接点击右上角的绿色三角箭头按钮就可以
+注意：用pycharm运行项目，要避免一个项目运行多次，在项目配置中，把“只用单一
+实例”那个选项勾选上，避免以上的问题
+##改变端口号：
+1、在终端：运行的时候加上一个端口号就可以了，命令为：python manage.py runserver 9000
+2、在pycahrm中：右上角->项目配置->port：改成你想要的端口号，重新运行
+##让同局域网中的其他电脑访问本机的项目：
+1、让项目运行的时候，host为0.0.0.0
+    .在终端，使用命令：python manage.py runserver 0.0.0.0:8000
+    .在pycharm中，右上角->项目配置->host,改成0.0.0.0
+2、在"settings.py"文件中，配置"ALLOWED_HOSTS"
+将本机的ip地址添加进去，示例代码如下：
+"""
+    ALLOWED_HOSTS = ["192.168.0.104"]
+"""
+注意：要关闭自己电脑的防火墙才行
+
+##项目结构分析：
+1."manage.py":以后和项目交互基本上等候室基于这个文件，一般都是在终端输入python manage.py [子命令].可以
+输入python manage.py help 看下能做什么事情，除非你知道你自己在做什么，一般情况下不应该编辑这个文件
+2."settings.py":保存项目所有的配置信息
+3."urls.py"：用来做url与视图函数映射的，以后来了一个请求，就会从这个文件中找到匹配的视图函数
+4."wsig.py":专门用来做部署的，不需要修改。
+
+##django推荐的项目规范：
+按照功能或者模块进行分层，分成一个个app,所有和莫个模块相关的视图，都卸载对应的app的views.py中，并且模型和其他
+的也类似，然后django也提供了一个比较方便创建app的命令叫做"python manage.py startapp [app的名称]"
+把所有的代码写在各自的app当中
+
+##DEBUG模式：
+1、如果开启了DEBUG模式，那么以后我们修改了Django项目的代码，然后按下ctrl+s,那么
+Django就会自动的给我们重启项目，不需要手动重启
+2、如果开启了DEBUG模式，那么以后Django项目中的代码出现了bug，那么在浏览器和
+控制台会打印出错信息
+3、在生产环境中，禁止开启DEBUG模式，不然又很大的安全问题
+
+
+##ALLOWED_HOSTS:
+这个变量是用来设置以后别人只能通过这个变量中的ip地址或者域名来进行访问
+
+##视图函数的返回值必须是'django.http.response.HttpResponseBase'的子类对象
+
+#url传递参数
+
+##url映射
+1、为什么会去urls.py文件中寻找映射呢？
+是因为在'settings.py'文件中配置了'ROOT_URLCONF'为'urls.py'，所有django会去
+urls.py中寻找
+2、在'urls.py'中我们所有的映射，都应该放在'urlpatterns'这个变量中
+3、所有的映射不是随便写的，而是使用'path'函数或者是're_path'函数进行包装的。
+
+##url传参数
+1、采用在url中使用变量的方式：在path的第一个参数中，使用'<参数名>'的方式可以传递参数。
+然后在视图函数中也要写一个参数，视图函数中的参数必须和url中的参数名称保持一致，不然就
+找不到这个参数。另外，url中可以传递多个参数
+2、采用查询字符串的方式：在url中，不需要单独的匹配查询字符串的部分。只需要在
+视图函数中使用'request.GET.get('参数名称')'的方式来获取。示例代码如下：
+"""python
+path('book/author/',views.book_author)
+
+def book_author(request):
+    author_id = request.GET.get('id')
+    text = "作者的id:%s" % author_id
+    return HttpResponse(text)
+"""
+因为查询字符串使用的是'GET'请求，所以我们通过'request.GET'来获取参数，并且因为'GET'是一个
+类似于字典的数据类型，所有获取值跟字典的方式都是一样的
+
+##url参数的转换器：
+1.str:除了斜杠'/'以外所有的字符都是可以的
+2.int:只有是一个或者多个的阿拉伯数字才满足
+3.path:所有的字符都满足(包括下划线)
+4.uuid:只有满足'uuid.uuid4()'这个函数返回的字符串格式的字符才满足
+5.slug:英文中的横杆或者英文字符或者阿拉伯数字或者下划线才满足
+
+#include 
+
+#urls模块化：
+如果项目变得越来越大，那么url会变得越来越多，如果都放在主'urls.py'文件中，那么将不太好管理。
+因此我们可以将每个app自己的urls放到自己的app中进行管理。一般我们会在app中新建一个urls.py文件，用来
+存储所有和这个app相关的子url
+需要注意的地方：
+1.应该使用'include'函数包含子'urls.py',并且这个'urls.py'的路径是相对于项目的路径.示例代码如下：
+"""python
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('book/',include('book.urls'))
+]
+"""
+2.在'app'的'urls.py'中，所有的url匹配也要放在一个叫做'urlpatterns'的变量中，否则会找不到
+3.'url'是会根据主'urls.py'和app中的'urls.py'进行拼接的，因此注意不要多加斜杠
+
+url命名：
+##为什么需要url命名？
+因为url是经常变化的。如果在代码中写成固定可能会经常改代码，给url取个名字，以后使用url的时候就使
+用他的名字进行反转就可以了，就不需要写成固定的url了
+
+##如何给一个url指定名称?
+在'path'函数中，传递一个'name'参数就可以指定，示例代码如下：
+"""python
+urlpatterns = [
+    path('',views.index,name='index'),
+    path('login/',views.login,name='login'),
+]
+"""
+
+##应用命名空间：
+在多个app之间，有可能产生同名的url,这时候为了避免反转url的时候产生混淆，
+可以使用应用命名空间，来做区分。定义应用命名空间非常简单，只要在'app'的'urls.py'中
+定义一个叫做'app_name'的变量，来指定这个应用的命名空间即可。示例代码如下：
+"""python
+#应用命名空间
+#应用命名空间的变量叫做app_name
+app_name = "front"
+
+urlpatterns = [
+    path('',views.index,name='index'),
+    path('login/',views.login,name='login'),
+]
+"""
+以后在做反转的时候就可以使用'应用命名空间：url名称'的方式进行反转。示例代码如下：
+"""python
+login_url = reverse("front:login")
+"""
+
+##应用(app)命名空间和实例命名空间：
+一个app，可以创建多个实例。可以使用多个url映射同一个app,所以这就会产生一个问题.
+以后在做反转的时候，如果使用应用命名空间，那么就会发生混淆，为了避免这个问题。我们可以
+使用实例命名空间。实例命名空间也是非常简单的，只要在'include'函数中传递一个'namespace'变量即可
+示例代码如下：
+"""python
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('',include('front.urls')),
+    #同一个app下有两个实例
+    path('cms1/',include('cms.urls',namespace='cms1')),
+    path('cms2/',include('cms.urls',namespace='cms2')),
+]
+"""
+
+以后在做反转的时候，就可以根据实例命名空间来指定具体的url.示例代码如下：
+"""python
+def index(request):
+    username = request.GET.get("username")
+    if username:
+        return HttpResponse("CMS首页")
+    else:
+        #获取当前的命名空间
+        current_namespace = request.resolver_match.namespace
+        return redirect(reverse("%s:login"%current_namespace))
+
+def login(request):
+    return HttpResponse("CMS登录页面")
+"""
+
+#include函数的用法
+1.include(module,namespace=None):
+*module:子url的模块字符串
+*namespace:实例命名空间。这个地方需要注意一点。如果指定实例命名空间，那么前提必须要先指定应用命名
+空间，也就是在子'urls.py'中添加变量
+2.include((pattern_list,app_namespace),namespace=None):'include'函数的
+第一个参数既可以为一个字符串，也可以为一个元组，如果是元组，那么元组的第一个参数是'urls.py'模块的
+字符串，元组的第二个参数是应用命名空间，也就是说，应用命名空间既可以在子'urls.py'中通过'app_name'指定，
+也可以在'include'函数中指定
+3.include(pattern_list):'pattern_list'是一个列表。这个列表中装的是'path'或者're_path'函数.
+实例代码如下：
+"""python
+
+path('movie/',include([
+        path('',views.movie),
+        path('list/',views.movie_list),
+    ]))
+"""
+
+#re_path笔记：
+1.re_path和path的作用都是一样的。只不过're_path'是在写url的时候可以使用正则表达式的功能，功能更加强大，
+2.写正则表达式都是推荐使用原生字符串。也就是以'r'开头的字符串.
+3.在正则表达式中定义变量，需要使用圆括号括起来。这个参数是由名字的，那么需要使用'?P<参数的名字>'.然后在后面
+添加正则表达式的规则。示例代码如下：
+"""python
+from django.urls import re_path
+from . import views
+
+urlpatterns = [
+    #r"":代表的是原生字符串(raw)
+    re_path(r"^$",views.article),
+    #/article/list/<year>/
+    re_path(r"^list/(?P<year>\d{4})/$",views.artucle_list),
+    #/article/list/<month>/
+    re_path(r"^list/(?P<month>\d{2})/$",views.article_list_month),
+]
+"""
+4.如果不是特别要求，直接使用'path'就够了，省的把代码搞得很复杂，除非是url中确实是需要使用正则表达式
+来解决才使用're_path'
+
+reverse笔记：
+1.如果在反转url的时候，需要添加参数，那么可以传递参数'kwargs'参数到'reverse'函数中。
+示例代码如下：
+"""python
+detail_url = reverse("detail",kwargs={"article_id":1,"page":2})
+"""
+2.如果想要添加查询字符串的参数，则必须手动的进行拼接，示例代码如下：
+"""python
+login_url = reverse('login') + "?next=/"
+"""
+
+自定义url转换器：
+之前已经学过一些django内置的url转换器，包括有int、uuid等，有时候这些内置的url转换器并不能满足我们的需求
+因此django给我们提供了一个接口，可以让我们自己定义自己的url转换器
+
+自定义url转换器按照以下五个步骤来走就可以了
+1.定义一个类，直接继承自object就可以了
+2.在类中定义一个属性regex.这个属性是用来限制url转换器规则的正则表达式
+3.实现to_python(self,value)方法，这个方法是将url中的值转换一下，然后传给视图函数的
+4.实现to_url(self,value)方法，这个方法是在做url反转的时候，将传进来的参数转换后拼接成一个正确的url.
+5.将定义好的转换器，使用'django.urls.converters.register_converter'注册到django中
+
+示例代码如下：
+"""python
+from django.urls import converters,register_converter
+
+class CategoryConverter(object):
+    regex = r"\w+|(\w+\+\w+)+"
+
+    def to_python(self,value):
+        #python+django+flask
+        #['python','django','flask']
+        result = value.split("+")
+        return result
+
+    def to_url(self,value):
+        #value:['python','django','flask']
+        #python+django+flask
+        if isinstance(value,list):
+            result = "+".join(value)
+            return result
+        else:
+            raise RuntimeError("转换url的时候，分类参数必须为列表!")
+
+register_converter(CategoryConverter, 'cate')
+"""
+#url映射的时候指定默认参数：
+使用path或者是re_path以后，有时候想指定默认的参数，这时候可以通过以下方式来完成。
+示例代码如下：
+"""python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('',views.books),
+    path('page/<int:page>/',views.books)
+]
+
+from django.http import HttpResponse
+
+book_list = [
+    "三国演义",
+    "水浒传",
+    "西游记",
+    "红楼梦",
+]
+
+# def index(request):
+#     return HttpResponse(book_list[0])
+
+def books(request,page=0):
+    return HttpResponse(book_list[page])
+"""
+##DTL与普通的HTML文件的区别：
+DTL模板是一种带有特殊语法的HTML文件，这个HTML文件可以被Django编译，可以传递参数进去，实现
+数据动态化。编译完成后，生成一个普通的HTML文件，然后发送给客户端
+
+##渲染模板
+渲染模板有多种方式，这里讲下述两种常用的方式：
+1."render_to_string":找到模板，然后将模板编译后渲染成python的字符串格式，最后，再通过
+HttpResponse类包装成一个HttpResponse对象返回回去，示例代码如下：
+"""python
+from django.template.loader import render_to_string
+from django.http import HttpResponse
+
+def index(request):
+    # html = render_to_string("index.html")
+    # return HttpResponse(html)
+"""
+
+以上方式虽然已经很方便了，但是django还提供了一个更加简便的方式，直接将模板渲染成字符串和包装成
+HttpResponse对象一步到位完成。示例代码如下：
+"""python
+from django.shortcuts import render,render_to_response
+
+def index(request):
+    return render(request,'index.html')
+"""
+
+#模板查找路径：
+在项目的settings.py文件中，有一个TEMPLATES配置，这个配置包含了模板引擎带的配置，模板查找
+路径的配置，模板上下文的配置等，模板路径可以在两个地方配置
+1.'DIRS':这是一个列表，在这个列表中可以存放所有的模板路径，以后在视图中使用render或者render_to_string
+渲染模板的时候，会在这个列表的路径中查找模板
+2.'APP_DIRS':默认为True,这个设置为True后，会在INSTALLED_APP中安装了的app下的templates文件中查找模板
+3.查找顺序：比如代码render('list.html').先会在DIRS这个列表中依次查找路径下是否有这个模板，如果有，就返回
+如果没有，那么会先检查当前这个视图所处的app是否已经安装了，如果安装了，那么就先在当前这个app下的templates
+文件中查找模板，如果没有找到，那么会在其他已经安装了的app中查找，如果所有路径下都没有找到，那么，会抛出一个
+TemplateDoesNotExist的异常
+
+#模板变量笔记：
+1.在模板中使用变量，需要将变量放到{{变量}}中.
+2.如果想要访问对象的属性，可以通过'对象.属性名'来进行访问
+3.如果想要访问一个字典的key对应的value,那么只能通过'字典.key'的方式进行访问，不能通过'中括号[]'的形式
+进行访问
+"""python
+ # context = {
+    #     "person":{
+    #         "username":"zhiliao1",
+    #         "keys":"abc",
+    #     }
+    # }
+    {{person.username}}
+"""
+4.因为在访问字典的'key'的时候使用了'.'操作符，所以，不能在字典中定义字典本身就有的
+属性名作为'key'.
+5.如果想要访问列表或者元组，使用的方法是
+person.0
+
+#if语句笔记
+1.所以的标签都是在{%%}之间的。
+2.if标签又闭合标签，就是'{% endif%}'.
+3.if标签的判断运算符，就跟python中的判断运算符是一样的.'== 、!=、......'
+4.还可以使用'elif'以及'else'等标签
+
+#for...in...笔记
+##for...in...标签：类似于python的for...in...
+可以遍历列表、元组、字符串、字典等一切可以遍历的对象，示例代码如下
+"""python
+        {% for book in books %}
+            <li>{{ book }}</li>
+        {% endfor %}
+"""
+#with标签
+1.在模板中定义变量。有时候一个变量访问的时候比较复杂，那么可以先把这个复杂的变量缓存到一个变量上，以后
+就可以直接使用这个变量就可以了。
+2.'with'语句有两种使用方式，第一种是'with xx=xxx'的形式(不要在等号两边有空格),第二种形式'with xxx as xx'
+的形式
+3.定义的变量只能在with语句块中使用，在with语句块外面使用会取不到值
+代码示例：
+"""python
+    {% with  zs=persons.0  %}
+        <p>{{ zs }}</p>
+        <p>{{ zs }}</p>
+        <p>{{ zs }}</p>
+    {% endwith %}
+    {% with persons.1 as ls %}
+        <p>{{ ls }}</p>
+        <p>{{ ls }}</p>
+        <p>{{ ls }}</p>
+    {% endwith %}
+    #下面这条语句中定义的变量ls取不到值，超出了with语句块
+    <p>{{  ls  }}</p>
+"""
+'url'标签:在模板中，我们经常要写一些'url'，比如某个'a'标签中需要定义'href'属性。当然如果通过硬编码
+的方式直接将这个'url'写成固定的也是可以的，但是，这样对于以后项目维护并不是一件好事。因此，建议使用
+这种反转的方式来实现，类似于'django'中的'reverse'一样，示例代码如下
+"""python
+<li><a href="{% url 'index' %}">首页</a></li>
+"""
+
+如果url反转的时候需要传递参数，那么可以在后面传递，但是参数分位置参数和关键字参数
+"""python
+<li><a href="{% url 'detail' book_id="1" category="文学" %}">最火的文章</a></li>
+"""
+如果想要在使用url标签反转的时候要传递查询字符串的参数，那么必须要手动在后面添加，示例代码如下：
+"""python
+<li><a href="{% url 'login' %}?next=yingkun">登录</a></li>
+"""
+
+如果需要传递多个参数，参数之间通过空格进行分隔
+
+#autoescape自动转义笔记：
+1.DTL中默认已经开启了自动转义，会将那些特定字符进行转义。比如会将'<'转义成'&lt;'等
+2.如果你不知道自己在干什么，那么最好使用DTL的自动转义，这样，网站才不容易出现XSS漏洞
+3.如果变量确实是可以信任的，那么可以使用'autoescape'标签来关掉自动转义，示例代码如下：
+"""python
+"info":"<a href='http://www.baidu.com'>百度</a>",
+
+{% autoescape off %}
+    {{ info }}
+{% endautoescape %}
+"""
+
+#verbatim标签笔记
+'verbatim'标签：默认在DTL模板中是会去解析那些特殊字符的，比如'{%'和'%}'以及'{{}}'等，如果
+你在某个代码片段中不想使用'DTL'的解析引擎，而去使用其它的解析引擎，例如'art-template',那么你可以
+把这个代码片段放在'verbatim'标签中，示例代码如下
+"""python
+{% verbatim %}
+    {{ hello }}
+{% endverbatim %}
+"""
+
+Django模板过滤器笔记：
+##为什么需要过滤器?
+因为在DTL中，不支持函数的调用形式'()'，因此不能给函数传递参数，这将有很大的局限性。
+而过滤器其实就是一个函数，可以对需要处理的参数进行处理，并且还可以额外接收一个参数，也就是说，
+最多只能有2个参数
+
+##add过滤器
+def add_view(request):
+    context = {
+        "value1":["1","2","3"],
+        "value2":["4","5","6"],
+    }
+    return render(request,"add.html",context=context)
+
+{{ value1|add:value2 }}
+
+##cut过滤器
+def cut_view(request):
+    return render(request,"cut.html")
+    {{  "hello world"|cut:" " }}
+
+##data过滤器
+将一个日期按照指定的格式，格式化成字符串，示例代码如下：
+{{ today|date:"d-m-Y H:i:s" }}
+
+#自定义过滤器笔记：
+1.首先在某个app中，创建一个python包，叫做'templatetags'，注意，这个包的名字必须为'templatetags',
+不然就找不到.
+2.在这个'templatetags'包下面，创建一个python文件用来存储过滤器
+3.在新建的python文件中，定义过滤器(也就是函数)，这个函数的第一个参数永远是被过滤的那个值，并且如果在
+使用过滤器的时候传递参数，那么还可以定义另外一个参数，但是过滤器最多只能有2个参数
+4.在写完过滤器(函数后),要使用django.template.Library.filter进行注册，
+5.还要把这个过滤器所在的这个app添加到'settings.INSTALLED_APPS'中，不然Django也找不到这个过滤器
+6.在模板中使用'load'标签加载过滤器所在的python包
+7.可以使用过滤器了
+8.django.template.Library.filter还可以当做装饰器来使用，如果filter函数没有传递任何参数，
+那么将会使用这个函数的名字来作为过滤器的名字，当然，如果你不想使用函数的名字作为过滤器的名字
+也可以传递一个name参数，示例代码如下
+"""python
+@register.filter("my_greet")
+def greet(value,word):
+    return value + word
+"""
+
+#include笔记
+1.有些模板代码是重复的，因此可以单独抽取出来，以后哪里需要用到，就直接使用'include'进来就可以了
+2.如果想要在'include'子模板的时候传递一些参数，那么可以使用'with xxx=xxx'的形式，示例代码如下
+"""python
+    {% include "header.html" with username="zhiliao" %}
+    <div class="content">
+        这是公司
+    </div>
+    {% include "footer.html" %}
+"""
+
+#模板继承
+需要注意的是：extends标签必须放在模板最开始的位置
+字幕版中的代码必须放在block中，否则不会被渲染
+如果在某个block中需要使用父模板的内容，那么可以使用{{block.super}}来继承 
+
+#ORM模型的创建和映射
+
+#创建ORM模型：
+'ORM'模型一般都是放在'app'的'model.py'文件中，每个app都可以拥有自己的模型，并且如果这个模型想要
+映射到数据库中，那么这个'app'必须要放在'settings.py'的INSTALLED_APP中进行安装，以下是一个简单的
+ORM模型
+"""python
+class Book(models.Model):
+    #1.id:int类型，是自动增长的，主键
+    id = models.AutoField(primary_key=True)
+    #2.name:varchar类型，最大长度100，不能为空
+    name = models.CharField(max_length=100,null=False)
+    #3.author:varchar类型，最大长度为100，不能为空
+    author = models.CharField(max_length=100,null=False)
+    #4.price:float类型，不能为空，默认值为0
+    price = models.FloatField(null=False,default=0)
+"""
+
+以上便定义了一个模型，这个模型继承自django.db.models.Model，如果这个模型想要映射到数据库中，就必须
+继承自这个类，这个模型以后映射到数据库中，表名是app_模型名称的小写形式
+
+如果一个模型没有定义主键，那么django将会自动生成一个自动增长的'int'类型的主键，并且这个主键的名字就叫做'id'
+
+##映射模型到数据库中
+1.在'settings.py'中，配置好'DATABASES'
+2.在'app'中的'models.py'中定义好模型，这个模型必须继承自'django.db.models.Model'
+3.将这个'app'添加到'settings.py'中的'INSTALLED_APPS'中定义好模型，这个模型必须继承自
+4.使用makemigrations生成迁移脚本文件
+python manage.py makemigrations
+5.使用migrate将新生成的迁移脚本文件映射到数据库中
+python manage.py migrate
+
+#ORM对数据库的基本操作
+##添加数据
+只要使用ORM模型创建一个对象，然后再调用这个ORM模型的'save'方法就可以保存了
+示例代码如下
+"""python
+    #1.使用ORM添加一条数据到数据库中
+    # book = Book(name="西游记",author="吴承恩",price=110)
+    # book.save()
+    # return HttpResponse("数据添加成功")
+"""
+
+##查找数据
+所有的查找工作都是使用模型上的'objects'属性来完成的，当然也可以自定义查询对象，这部分功能会在
+后面讲到
+1.根据主键进行查找:可以使用'objects.get'方法，让后传递'pk=xx'的方式进行查找，示例代码如下
+"""python
+    #2.1根据主键进行查找
+    #primary key
+    # book = Book.objects.get(pk=2)
+    # print(book)
+    # return HttpResponse("数据查询成功")
+"""
+2.根据其它字段进行查找，可以使用'objects.filter'方法进行查找，示例代码如下:
+"""python
+    #2.2根据其它条件进行查找
+    # books = Book.objects.filter(name="三国演义").first()
+    # print(books)
+    # return HttpResponse("数据查询成功")
+"""
+使用filter方法返回的是一个'QuerySet'对象，这个对象类似于列表，我们可以使用这个对象的'first'方法来获取
+第一个值
+
+##删除数据
+首先查找到对应的数据模型，然后再执行这个模型的'delete'方法即可删除，示例代码如下
+"""python
+    #3.使用ORM删除数据
+    # book = Book.objects.get(pk=1)
+    # book.delete()
+    # return HttpResponse("数据删除成功")
+"""
+
+##修改数据
+首先查找到对应的数据模型，然后修改这个模型上的属性的值，再执行'save'方法即可完成修改，示例代码如下
+"""python
+    #4.修改数据
+    book = Book.objects.get(pk=1)
+    book.price = 800
+    book.save()
+    return HttpResponse("修改数据成功")
+"""
+
+#naive时间和aware时间
+1.naive时间：不知道自己的时间表示的是哪个时区的，比较幼稚的
+2.aware时间：知道自己的时间表示的是哪个时区的，比较清醒的
+
+pytz:
+专门用来处理时区的库，这个库会经常更新一些时区的数据，不需要我们担心，并且这个库在安装Django的时候会默认
+的安装，如果没有安装，那么可以通过'pip install pytz'的方式进行安装
+
+#astimezone方法:
+将一个时区的时间转换为另外一个时区的时间，这个方法只能被'aware'类型的时间调用，不能被'naive'类型的时间调用
+示例代码如下：
+"""python
+import pytz
+from datetime import datetime
+now = datetime.now()
+utc_timezone = pytz.timezone("UTC")
+now = now.replace(tzinfo=pytz.timezone("Asia/Shanghai"))
+now.astimezone(utc_timezone)
+"""
+
+##replace方法：
+可以将一个时间的某些属性进行更改
+
+#django.utils.timezone.now方法
+会根据'settings.py'中是否设置了'USER_TZ=True'获取当前的时间.如果设置了，那么
+就获取一个'aware'类型的'UTC'时间.如果没有设置，那么就会获取一个'naive'类型的时间
+
+##django。utils.timezone.localtime方法:
+会根据'settings.py'中的'TIME_ZONE'来将一个'aware'类型的时间转换为'TIME_ZONE'指定时区的时间
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

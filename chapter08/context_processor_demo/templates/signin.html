@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block head %}
+
+{% endblock %}
+
+{% block body %}
+    <form action="" method="post">
+{#        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">#}
+        {% csrf_token %}
+        <table>
+            <tbody>
+                <tr>
+                    <td>用户名:</td>
+                    <td><input type="text" name="username"></td>
+                </tr>
+                <tr>
+                    <td>密码:</td>
+                    <td><input type="password" name="password"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><input type="submit" value="提交"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <ul>
+                            {% for message in messages %}
+                                {% if message.tags == 'info' %}
+                                    <li style="color:pink">{{ message }}</li>
+                                {% else %}
+                                    <li>{{ message }}</li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+{% endblock %}

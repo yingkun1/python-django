@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>首页</title>
+</head>
+<body>
+首页
+{% if perms.front.add_user %}
+    <a href="#">添加文章</a>
+{% endif %}
+</body>
+</html>

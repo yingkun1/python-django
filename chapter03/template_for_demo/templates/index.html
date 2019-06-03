@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{#    <ul>#}
+{#        <li>{{ books.0 }}</li>#}
+{#        <li>{{ books.1 }}</li>#}
+{#        <li>{{ books.2 }}</li>#}
+{#        <li>{{ books.3 }}</li>#}
+{#    </ul>#}
+{#    <ul>#}
+{#        {% for book in books reversed %}#}
+{#            <li>{{ book }}</li>#}
+{#        {% endfor %}#}
+{##}
+{#    </ul>#}
+{#    <ul>#}
+{#        {% for key in person.keys %}#}
+{#            <li>{{ key }}</li>#}
+{#        {% endfor %}#}
+{#    </ul>#}
+{#    <ul>#}
+{#        {% for value in person.values %}#}
+{#            <li>{{ value }}</li>#}
+{#        {% endfor %}#}
+{#    </ul>#}
+{#    <ul>#}
+{#        {% for key,value in person.items  %}#}
+{#            <li>{{ key }}/{{ value }}</li>#}
+{#        {% endfor %}#}
+{##}
+{#    </ul>#}
+{#    <ul>#}
+{#        {% for book in books %}#}
+{#            <li>{{ book }}</li>#}
+{#        {% endfor %}#}
+{##}
+{#    </ul>#}
+    <table>
+        <thead>
+            <tr>
+                <td>序号</td>
+                <td>书名</td>
+                <td>作者</td>
+                <td>价格</td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in books %}
+                {% if forloop.first %}
+                    <tr style="background-color: red">
+                {% elif forloop.last %}
+                    <tr style="background-color: pink">
+                {% else %}
+                    <tr>
+                {% endif %}
+                    <td>{{ forloop.revcounter }}</td>
+                    <td>{{ book.name }}</td>
+                    <td>{{ book.author }}</td>
+                    <td>{{ book.price }}</td>
+                </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+    <ul>
+        {% for comment in comments %}
+            <li>{{ comment }}</li>
+        {% empty %}
+            <li>暂时没有任何评论</li>
+        {% endfor %}
+
+    </ul>
+</body>
+</html>

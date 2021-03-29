@@ -55,7 +55,7 @@ pycurl==7.43.1
 PyDispatcher==2.0.5
 pyface==6.0.0
 pygame==1.9.3
-Pygments==2.2.0
+Pygments==2.7.4
 PyHamcrest==1.9.0
 pylint==2.1.1
 pymongo==3.7.1

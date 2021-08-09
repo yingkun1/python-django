@@ -68,7 +68,7 @@ python-dateutil==2.7.3
 python-memcached==1.59
 python-scrapyd-api==2.1.2
 pytz==2018.5
-pywin32==221
+pywin32==301
 PyYAML==3.13
 pyzmq==17.1.2
 queuelib==1.5.0
